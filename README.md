@@ -17,7 +17,7 @@ cd src/client && python3 client1.py
 cd src/client && python3 client2.py
 ```
 
-Para executar os testes dos algoritmos de criptografia, execute o seguinte comando:
+Para executar os testes dos algoritmos de criptografia, execute os comandos abaixo:
 
 ```bash
 cd tests && python3 -m unittest test_rc4.py
