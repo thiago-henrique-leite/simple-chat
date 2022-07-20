@@ -5,7 +5,9 @@ addresses, clients = {}, {}
 
 server = socket(AF_INET, SOCK_STREAM)
 
-server.bind(('localhost', 3000))
+port = 3001
+
+server.bind(('localhost', port))
 
 def thread_main():
     if __name__ == '__main__':

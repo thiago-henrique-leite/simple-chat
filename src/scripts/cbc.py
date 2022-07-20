@@ -40,24 +40,35 @@ class CBC:
       return message
 
   def perform_encrypt(self):
+    print('Iniciando')
+    print(self.message)
     p10 = self.permuttation(self.key, self.P10)
-
+    print(p10)
     left, rigth = self.rotate(p10[0:5], 1), self.rotate(p10[5:10], 1)
 
     k1 = self.permuttation(left + rigth, self.P8)
     k2 = self.permuttation(self.rotate(left, 2) + self.rotate(rigth, 2), self.P8)
 
+    print(k1)
+    print(k2)
+
     msg_binary = self.convert_binary_to_array(self.convert_message_to_binary(self.message))
+
+    print(msg_binary)
 
     message = self.xor(msg_binary[0], '10101010')
 
     msg_encrypted = self.permuttation(self.f_function(self.swap(self.f_function(self.permuttation(message, self.IP), k1)), k2), self.PI)
     msg_encrypted = [msg_encrypted]
 
+    print(msg_encrypted)
+
     for i in range(1, len(msg_binary)):
       message = self.xor(msg_binary[i], msg_encrypted[i-1])
 
       msg_encrypted.append(self.permuttation(self.f_function(self.swap(self.f_function(self.permuttation(message, self.IP), k1)), k2), self.PI))
+
+    print(message)
 
     return ''.join(msg_encrypted)
 
@@ -216,4 +227,4 @@ class CBC:
 
     return response
 
-CBC.decrypt('10001011011000110001011100001101000010111100010101100101001010110110110110110111', '1000000000')
+# CBC.decrypt('10001011011000110001011100001101000010111100010101100101001010110110110110110111', '1000000000')
