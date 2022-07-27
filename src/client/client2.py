@@ -76,7 +76,7 @@ def decrypt(message):
 
 def send_message():
     if RECEIVER != '' and inputs['message'] != '':
-        if inputs['message'] != 'exit':
+        if inputs['message'] != '!sair':
             client_socket.send(bytes(f"#{RECEIVER}#{encrypt(inputs['message'])}", 'utf8'))
 
             messages.append(f"{SENDER}: {inputs['message']}")
@@ -89,8 +89,6 @@ def receive_message():
     while True:
         try:
             splited_message = client_socket.recv(1024).decode('utf8').split('#')
-            # print(splited_message)
-
             splitted_message_size = len(splited_message)
 
             if splitted_message_size > 1:
@@ -111,13 +109,7 @@ def publish_key():
         client_socket.send(bytes(f"#pubkey#{RECEIVER}#{inputs['pubkey']}", 'utf8'))
 
 def update_public_key(host, key):
-    print("\nAtualizando chave pública:")
-    print(f'Host: {host}')
-    print(f'Chave: {key}')
-
     PUBLIC_KEYS_HASH[host] = int(key)
-
-    update_crypt_key_if_needed()
 
 def connect_with_server():
     client_socket.send(bytes(SENDER, 'utf8'))
