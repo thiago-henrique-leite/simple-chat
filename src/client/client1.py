@@ -9,8 +9,6 @@ from scripts.rc4 import RC4
 from scripts.cbc import CBC
 from scripts.diffie_helman import DiffieHelman
 
-receiver, sender = '', ''
-
 # Crypt Methods
 
 def encrypt(message):
@@ -36,39 +34,15 @@ def decrypt(message):
 # Communication Methods
 
 def send_message():
-  if receiver != '' and inputs['message'] != '':
-    if inputs['message'] != 'exit':
-      client_socket.send(bytes(f"#{receiver}#{encrypt(inputs['message'])}", 'utf8'))
+    if receiver != '' and inputs['message'] != '':
+        if inputs['message'] != 'exit':
+            client_socket.send(bytes(f"#{receiver}#{encrypt(inputs['message'])}", 'utf8'))
 
-      messages.append(f"{sender}: {inputs['message']}")
-    else:
-      client_socket.send(bytes('exit', 'utf8'))
-      client_socket.close()
-      window.close()
-
-def publish_key():
-  if not receiver == '' and not inputs['pubkey'] == '':
-    client_socket.send(bytes(f"#pubkey#{receiver}#{inputs['pubkey']}", 'utf8'))
-
-def receiver_public_key():
-  try:
-    print(f'receiver_public_key: {chaves_publicas[receiver]}')
-    return chaves_publicas[receiver]
-  except:
-    return 0
-
-def get_diffie_helman_key():
-  DiffieHelman.get_key(private_key, receiver_public_key())
-
-def add_public_key(host, key):
-  print('')
-  print('Atualizando chave pública:')
-  print(f'Host: {host}')
-  print(f'Chave: {key}')
-  print('')
-  print(f'add-pub: {host}')
-  chaves_publicas[host] = key
-  print(chaves_publicas)
+            messages.append(f"{sender}: {inputs['message']}")
+        else:
+            client_socket.send(bytes('exit', 'utf8'))
+            client_socket.close()
+            window.close()
 
 def receive_message():
     while True:
@@ -76,25 +50,48 @@ def receive_message():
             splited_message = client_socket.recv(1024).decode('utf8').split('#')
             print(splited_message)
 
-            if len(splited_message) > 1:
-              if splited_message[1] == sender:
-                messages.append(f'{splited_message[0]}: {decrypt(splited_message[2])}')
-              else:
-                if not splited_message[0] == my_ip and splited_message[1] == 'pubkey':
-                  add_public_key(splited_message[0], splited_message[3])
-                  # crypt_key = get_diffie_helman_key()
-            elif len(splited_message) == 1:
-                messages.append(splited_message[0] + '\n')
+            splitted_message_size = len(splited_message)
+
+            if splitted_message_size > 1:
+                if splited_message[1] == sender:
+                    messages.append(f'{splited_message[0]}: {decrypt(splited_message[2])}')
+                else:
+                    if splited_message[0] != sender and splited_message[1] == 'pubkey':
+                        update_public_key(splited_message[0], splited_message[3])
+            elif splitted_message_size == 1:
+                messages.append(f"{splited_message[0]}\n")
 
             window['chat_messages'].update(values = messages)
         except:
             break
+
+def publish_key():
+    if not receiver == '' and not inputs['pubkey'] == '':
+        client_socket.send(bytes(f"#pubkey#{receiver}#{inputs['pubkey']}", 'utf8'))
+
+def receiver_public_key():
+    try:
+        print(f'receiver_public_key: {chaves_publicas[receiver]}')
+        return chaves_publicas[receiver]
+    except:
+        return 0
+
+def update_public_key(host, key):
+    print("\nAtualizando chave pública:")
+    print(f'Host: {host}')
+    print(f'Chave: {key}')
+
+    chaves_publicas[host] = key
+
+    print(chaves_publicas)
 
 def set_name():
     client_socket.send(bytes(sender, 'utf8'))
 ###
 
 port = 3001
+
+receiver, sender = '', ''
 
 client_socket = socket(AF_INET, SOCK_STREAM)
 client_socket.connect(('localhost', port))
