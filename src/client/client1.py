@@ -36,11 +36,11 @@ def decrypt(message):
 # Communication Methods
 
 def send_message():
-  if not receiver == '' and not inputs['message'] == '':
-    if not inputs['message'] == 'exit':
+  if receiver != '' and inputs['message'] != '':
+    if inputs['message'] != 'exit':
       client_socket.send(bytes(f"#{receiver}#{encrypt(inputs['message'])}", 'utf8'))
 
-      messages.append(sender + ': ' + inputs['message'])
+      messages.append(f"{sender}: {inputs['message']}")
     else:
       client_socket.send(bytes('exit', 'utf8'))
       client_socket.close()
