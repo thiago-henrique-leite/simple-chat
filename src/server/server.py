@@ -5,7 +5,7 @@ addresses, clients = {}, {}
 
 server = socket(AF_INET, SOCK_STREAM)
 
-PORT = 3000
+PORT = 3001
 
 server.bind(('localhost', PORT))
 

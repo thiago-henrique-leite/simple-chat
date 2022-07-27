@@ -11,7 +11,7 @@ from scripts.diffie_helman import DiffieHelman
 
 # Definição das variáveis globais
 
-PORT = 3000
+PORT = 3001
 HOST = 'localhost'
 
 # Quem recebe a mensagem e quem envia (você), respectivamente
@@ -20,12 +20,12 @@ RECEIVER, SENDER = '', ''
 MY_IP = '192.168.0.17'
 TO_IP = '192.168.0.107'
 
-MY_PRIVATE_KEY = 66
+MY_PRIVATE_KEY = 63
 MY_PUBLIC_KEY = DiffieHelman.get_public(MY_PRIVATE_KEY)
 
 PUBLIC_KEYS_HASH = {}
-PUBLIC_KEYS_HASH['192.168.0.17'] = 253
-PUBLIC_KEYS_HASH['192.168.0.107'] = 252
+PUBLIC_KEYS_HASH['192.168.0.17'] = 13
+PUBLIC_KEYS_HASH['192.168.0.107'] = 12
 
 inputs, messages = [], []
 
@@ -115,7 +115,9 @@ def update_public_key(host, key):
 
     PUBLIC_KEYS_HASH[host] = int(key)
 
-    print(PUBLIC_KEYS_HASH)
+    key = DiffieHelman.get_key(PUBLIC_KEYS_HASH[inputs['RECEIVER']], MY_PRIVATE_KEY)
+
+    window['key'].update(key)
 
 def connect_with_server():
     client_socket.send(bytes(SENDER, 'utf8'))
@@ -138,7 +140,7 @@ def update_crypt_key_if_needed(inputs):
     MY_PRIVATE_KEY = int(inputs['privkey'])
     MY_PUBLIC_KEY = DiffieHelman.get_public(MY_PRIVATE_KEY)
 
-    key = DiffieHelman.get_key(MY_PRIVATE_KEY, PUBLIC_KEYS_HASH[inputs['RECEIVER']])
+    key = DiffieHelman.get_key(PUBLIC_KEYS_HASH[inputs['RECEIVER']], MY_PRIVATE_KEY)
 
     window['pubkey'].update(MY_PUBLIC_KEY)
     window['key'].update(key)
@@ -146,6 +148,8 @@ def update_crypt_key_if_needed(inputs):
     client_socket.send(bytes(f"#pubkey#{RECEIVER}#{MY_PUBLIC_KEY}", 'utf8'))
 
     PUBLIC_KEYS_HASH[inputs['SENDER']] = MY_PUBLIC_KEY
+
+    print(PUBLIC_KEYS_HASH)
 
 # Iniciando conexão socket com o servidor na porta selecionada
 
