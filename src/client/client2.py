@@ -30,7 +30,6 @@ PUBLIC_KEYS_HASH['192.168.0.107'] = 12
 inputs, messages = [], []
 
 CRYPTS = ['SDES', 'RC4', 'CBC', 'DiffieHelman']
-crypt_method, crypt_key = 'RC4', 'teste'
 
 COLOR_BOXES = 'red'
 
@@ -53,24 +52,25 @@ window = sg.Window('Chat with Encryption | @thiagoleite', layout, finalize=True)
 # Métodos de criptografia
 
 def encrypt(message):
-    if crypt_method == 'SDES':
-        return SDES.encrypt(message, crypt_key)
-    if crypt_method == 'RC4':
-        return RC4.encrypt(message, crypt_key)
-    if crypt_method == 'CBC':
-        return CBC.encrypt(message, crypt_key)
-    if crypt_method == 'DiffieHelman':
-        return RC4.encrypt(message, crypt_key)
+    if inputs['crypt'] == 'SDES':
+        return SDES.encrypt(message, inputs['key'])
+    if inputs['crypt'] == 'RC4':
+        return RC4.encrypt(message, inputs['key'])
+    if inputs['crypt'] == 'CBC':
+        return CBC.encrypt(message, inputs['key'])
+    if inputs['crypt'] == 'DiffieHelman':
+        print(inputs['key'])
+        return RC4.encrypt(message, inputs['key'])
 
 def decrypt(message):
-    if crypt_method == 'SDES':
-        return SDES.decrypt(message, crypt_key)
-    if crypt_method == 'RC4':
-        return RC4.decrypt(message, crypt_key)
-    if crypt_method == 'CBC':
-        return CBC.decrypt(message, crypt_key)
-    if crypt_method == 'DiffieHelman':
-        return RC4.decrypt(message, crypt_key)
+    if inputs['crypt'] == 'SDES':
+        return SDES.decrypt(message, inputs['key'])
+    if inputs['crypt'] == 'RC4':
+        return RC4.decrypt(message, inputs['key'])
+    if inputs['crypt'] == 'CBC':
+        return CBC.decrypt(message, inputs['key'])
+    if inputs['crypt'] == 'DiffieHelman':
+        return RC4.decrypt(message, inputs['key'])
 
 # Métodos de comunicação entre os clientes
 
@@ -115,7 +115,7 @@ def connect_with_server():
     client_socket.send(bytes(SENDER, 'utf8'))
 
 def crypt_is_diffie_helman():
-    crypt_method == 'DiffieHelman'
+    inputs['crypt'] == 'DiffieHelman'
 
 def update_boxes_color_if_needed():
     if crypt_is_diffie_helman:
@@ -164,8 +164,6 @@ while True:
         connect_with_server()
 
     if event == 'event_update':
-        crypt_method, crypt_key = inputs['crypt'], inputs['key']
-
         update_boxes_color_if_needed()
         update_crypt_key_if_needed()
 
