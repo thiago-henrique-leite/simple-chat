@@ -11,7 +11,7 @@ from scripts.diffie_helman import DiffieHelman
 
 # Definição das variáveis globais
 
-PORT = 3001
+PORT = 3000
 HOST = 'localhost'
 
 # Quem recebe a mensagem e quem envia (você), respectivamente
@@ -33,6 +33,8 @@ CRYPTS = ['SDES', 'RC4', 'CBC', 'DiffieHelman']
 crypt_method, crypt_key = 'RC4', 'teste'
 
 COLOR_BOXES = 'red'
+
+inputs = []
 
 # Interface gráfica do chat
 
@@ -87,7 +89,7 @@ def receive_message():
     while True:
         try:
             splited_message = client_socket.recv(1024).decode('utf8').split('#')
-            print(splited_message)
+            # print(splited_message)
 
             splitted_message_size = len(splited_message)
 
@@ -115,9 +117,7 @@ def update_public_key(host, key):
 
     PUBLIC_KEYS_HASH[host] = int(key)
 
-    key = DiffieHelman.get_key(PUBLIC_KEYS_HASH[inputs['RECEIVER']], MY_PRIVATE_KEY)
-
-    window['key'].update(key)
+    update_crypt_key_if_needed()
 
 def connect_with_server():
     client_socket.send(bytes(SENDER, 'utf8'))
@@ -134,7 +134,7 @@ def update_boxes_color_if_needed():
     window['pubkey'].update(background_color=COLOR_BOXES)
     window['privkey'].update(background_color=COLOR_BOXES)
 
-def update_crypt_key_if_needed(inputs):
+def update_crypt_key_if_needed():
     if not crypt_is_diffie_helman: return
 
     MY_PRIVATE_KEY = int(inputs['privkey'])
@@ -149,7 +149,7 @@ def update_crypt_key_if_needed(inputs):
 
     PUBLIC_KEYS_HASH[inputs['SENDER']] = MY_PUBLIC_KEY
 
-    print(PUBLIC_KEYS_HASH)
+    print(f'Lista de chaves públicas: {PUBLIC_KEYS_HASH}')
 
 # Iniciando conexão socket com o servidor na porta selecionada
 
@@ -175,10 +175,10 @@ while True:
         crypt_method, crypt_key = inputs['crypt'], inputs['key']
 
         update_boxes_color_if_needed()
-        update_crypt_key_if_needed(inputs)
+        update_crypt_key_if_needed()
 
     if event == 'event_publish':
-        update_crypt_key_if_needed(inputs)
+        update_crypt_key_if_needed()
 
     if event == 'event_send':
         send_message()
