@@ -66,15 +66,8 @@ def receive_message():
             break
 
 def publish_key():
-  if not receiver == '' and not inputs['pubkey'] == '':
-    client_socket.send(bytes(f"#pubkey#{receiver}#{inputs['pubkey']}", 'utf8'))
-
-def receiver_public_key():
-    try:
-        print(f'receiver_public_key: {chaves_publicas[receiver]}')
-        return chaves_publicas[receiver]
-    except:
-        return 0
+    if receiver != '' and inputs['pubkey'] != '':
+        client_socket.send(bytes(f"#pubkey#{receiver}#{inputs['pubkey']}", 'utf8'))
 
 def update_public_key(host, key):
     print("\nAtualizando chave pública:")
