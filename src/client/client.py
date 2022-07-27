@@ -17,10 +17,10 @@ HOST = 'localhost'
 # Quem recebe a mensagem e quem envia (você), respectivamente
 RECEIVER, SENDER = '', ''
 
-MY_IP = '192.168.0.107'
-TO_IP = '192.168.0.17'
+MY_IP = sys.argv[1]
+TO_IP = sys.argv[2]
 
-MY_PRIVATE_KEY = 79
+MY_PRIVATE_KEY = int(sys.argv[3])
 MY_PUBLIC_KEY = DiffieHelman.get_public(MY_PRIVATE_KEY)
 
 PUBLIC_KEYS_HASH = {}
