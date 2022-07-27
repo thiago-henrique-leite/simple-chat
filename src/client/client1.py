@@ -11,18 +11,29 @@ from scripts.diffie_helman import DiffieHelman
 
 receiver, sender = '', ''
 
-### Methods
+# Crypt Methods
+
 def encrypt(message):
-    if crypt_method == 'SDES': return SDES.encrypt(message, crypt_key)
-    if crypt_method == 'RC4': return RC4.encrypt(message, crypt_key)
-    if crypt_method == 'CBC': return CBC.encrypt(message, crypt_key)
-    if crypt_method == 'DiffieHelman': return RC4.encrypt(message, crypt_key)
+    if crypt_method == 'SDES':
+        return SDES.encrypt(message, crypt_key)
+    if crypt_method == 'RC4':
+        return RC4.encrypt(message, crypt_key)
+    if crypt_method == 'CBC':
+        return CBC.encrypt(message, crypt_key)
+    if crypt_method == 'DiffieHelman':
+        return RC4.encrypt(message, crypt_key)
 
 def decrypt(message):
-    if crypt_method == 'SDES': return SDES.decrypt(message, crypt_key)
-    if crypt_method == 'RC4': return RC4.decrypt(message, crypt_key)
-    if crypt_method == 'CBC': return CBC.decrypt(message, crypt_key)
-    if crypt_method == 'DiffieHelman': return RC4.decrypt(message, crypt_key)
+    if crypt_method == 'SDES':
+        return SDES.decrypt(message, crypt_key)
+    if crypt_method == 'RC4':
+        return RC4.decrypt(message, crypt_key)
+    if crypt_method == 'CBC':
+        return CBC.decrypt(message, crypt_key)
+    if crypt_method == 'DiffieHelman':
+        return RC4.decrypt(message, crypt_key)
+
+# Communication Methods
 
 def send_message():
   if not receiver == '' and not inputs['message'] == '':
@@ -92,8 +103,8 @@ my_ip = '192.168.0.107'
 to_ip = '192.168.0.17'
 
 chaves_publicas = {}
-chaves_publicas['192.168.0.17'] = 252
-chaves_publicas['192.168.0.107'] = 253
+chaves_publicas['192.168.0.17'] = 253
+chaves_publicas['192.168.0.107'] = 252
 
 private_key = 77
 public_key = DiffieHelman.get_public(private_key)
