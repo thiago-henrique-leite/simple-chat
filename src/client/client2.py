@@ -9,7 +9,7 @@ from scripts.rc4 import RC4
 from scripts.cbc import CBC
 from scripts.diffie_helman import DiffieHelman
 
-## Crypt Methods
+# Métodos de criptografia
 
 def encrypt(message):
     if crypt_method == 'SDES':
@@ -31,14 +31,14 @@ def decrypt(message):
     if crypt_method == 'DiffieHelman':
         return RC4.decrypt(message, crypt_key)
 
-# Communication Methods
+# Métodos de comunicação entre os clientes
 
 def send_message():
-    if receiver != '' and inputs['message'] != '':
+    if RECEIVER != '' and inputs['message'] != '':
         if inputs['message'] != 'exit':
-            client_socket.send(bytes(f"#{receiver}#{encrypt(inputs['message'])}", 'utf8'))
+            client_socket.send(bytes(f"#{RECEIVER}#{encrypt(inputs['message'])}", 'utf8'))
 
-            messages.append(f"{sender}: {inputs['message']}")
+            messages.append(f"{SENDER}: {inputs['message']}")
         else:
             client_socket.send(bytes('exit', 'utf8'))
             client_socket.close()
@@ -53,10 +53,10 @@ def receive_message():
             splitted_message_size = len(splited_message)
 
             if splitted_message_size > 1:
-                if splited_message[1] == sender:
+                if splited_message[1] == SENDER:
                     messages.append(f'{splited_message[0]}: {decrypt(splited_message[2])}')
                 else:
-                    if splited_message[0] != sender and splited_message[1] == 'pubkey':
+                    if splited_message[0] != SENDER and splited_message[1] == 'pubkey':
                         update_public_key(splited_message[0], splited_message[3])
             elif splitted_message_size == 1:
                 messages.append(f"{splited_message[0]}\n")
@@ -66,102 +66,105 @@ def receive_message():
             break
 
 def publish_key():
-    if receiver != '' and inputs['pubkey'] != '':
-        client_socket.send(bytes(f"#pubkey#{receiver}#{inputs['pubkey']}", 'utf8'))
+    if RECEIVER != '' and inputs['pubkey'] != '':
+        client_socket.send(bytes(f"#pubkey#{RECEIVER}#{inputs['pubkey']}", 'utf8'))
 
 def update_public_key(host, key):
     print("\nAtualizando chave pública:")
     print(f'Host: {host}')
     print(f'Chave: {key}')
 
-    chaves_publicas[host] = key
+    PUBLIC_KEYS_HASH[host] = key
 
-    print(chaves_publicas)
+    print(PUBLIC_KEYS_HASH)
 
 def set_name():
-    client_socket.send(bytes(sender, 'utf8'))
-###
+    client_socket.send(bytes(SENDER, 'utf8'))
 
-port = 3001
+# Definição das variáveis globais
 
-receiver, sender = '', ''
+PORT = 3001
+HOST = 'localhost'
 
-client_socket = socket(AF_INET, SOCK_STREAM)
-client_socket.connect(('localhost', port))
+# Quem recebe a mensagem e quem envia (você), respectivamente
+RECEIVER, SENDER = '', ''
 
-my_ip = '192.168.0.17'
-to_ip = '192.168.0.107'
+MY_IP = '192.168.0.17'
+TO_IP = '192.168.0.107'
 
-chaves_publicas = {}
-chaves_publicas['192.168.0.17'] = 253
-chaves_publicas['192.168.0.107'] = 252
+MY_PRIVATE_KEY = 66
+MY_PUBLIC_KEY = DiffieHelman.get_public(MY_PRIVATE_KEY)
 
-private_key = 66
-public_key = DiffieHelman.get_public(private_key)
-
-print(public_key)
+PUBLIC_KEYS_HASH = {}
+PUBLIC_KEYS_HASH['192.168.0.17'] = 253
+PUBLIC_KEYS_HASH['192.168.0.107'] = 252
 
 inputs, messages = [], []
 
-crypts = ['SDES', 'RC4', 'CBC', 'DiffieHelman']
+CRYPTS = ['SDES', 'RC4', 'CBC', 'DiffieHelman']
 crypt_method, crypt_key = 'RC4', 'teste'
+
+COLOR_BOXES = 'red'
+
+# Interface gráfica do chat
 
 sg.change_look_and_feel('NeutralBlue')
 
-color_boxes = 'red'
-
 layout = [
-    [sg.Text('Meu IP', size=(6,0)), sg.Input(my_ip, size=(21,0), key='sender'), sg.Text('IP', size=(2,0)), sg.Input(to_ip, size=(22,0), key='receiver'), sg.Button('Conectar', size=(10,0), key='connect')],
-    [sg.Text('Criptografia', size=(10,0)), sg.OptionMenu(key='crypt', size=(10,0), values=crypts, default_value=crypts[1], text_color='black', pad=(10, 10)), sg.Text('Chave', size=(6,0)), sg.Input('teste', size=(18,0), key='key'), sg.Button('Atualizar', size=(10,0), key='update')],
-    [sg.Text('Chave Privada', size=(12,0)), sg.Input(private_key, background_color=color_boxes, size=(14,0), key='privkey'), sg.Text('Chave Pública', size=(12,0)), sg.Input(public_key, background_color=color_boxes, size=(14,0), key='pubkey'), sg.Button('Publicar', size=(9,0), key='publish')],
+    [sg.Text('Meu IP', size=(6,0)), sg.Input(MY_IP, size=(21,0), key='SENDER'), sg.Text('IP', size=(2,0)), sg.Input(TO_IP, size=(22,0), key='RECEIVER'), sg.Button('Conectar', size=(10,0), key='connect')],
+    [sg.Text('Criptografia', size=(10,0)), sg.OptionMenu(key='crypt', size=(10,0), values=CRYPTS, default_value=CRYPTS[1], text_color='black', pad=(10, 10)), sg.Text('Chave', size=(6,0)), sg.Input('teste', size=(18,0), key='key'), sg.Button('Atualizar', size=(10,0), key='update')],
+    [sg.Text('Chave Privada', size=(12,0)), sg.Input(MY_PRIVATE_KEY, background_color=COLOR_BOXES, size=(14,0), key='privkey'), sg.Text('Chave Pública', size=(12,0)), sg.Input(MY_PUBLIC_KEY, background_color=COLOR_BOXES, size=(14,0), key='pubkey'), sg.Button('Publicar', size=(9,0), key='publish')],
     [sg.Listbox(key='chat_messages', size=(70,30), values=messages)],
     [sg.Text('Mensagem', size=(9,0)), sg.Input(size=(45,0), key='message', do_not_clear=False), sg.Button('Enviar', size=(10,0), key='send')],
 ]
 
-window = sg.Window('SimpleChat with Python | @ThiagoLeite', layout, finalize=True)
+window = sg.Window('Chat with Encryption | @thiagoleite', layout, finalize=True)
+
+# Iniciando conexão socket com o servidor na porta selecionada
+
+client_socket = socket(AF_INET, SOCK_STREAM)
+client_socket.connect((HOST, PORT))
+
+# Iniciando thread para tratar o recebimento das mensagens
 
 receive_thread = Thread(target=receive_message)
 receive_thread.start()
 
-print('Chaves Públicas')
-print(chaves_publicas)
-
 while True:
-  event, inputs = window.read()
+    event, inputs = window.read()
 
-  if event == sg.WINDOW_CLOSED:
-    break
+    if event == sg.WINDOW_CLOSED:
+        break
 
-  if event == 'connect':
-    sender = inputs['sender']
-    receiver = inputs['receiver']
-    set_name()
+    if event == 'connect':
+        SENDER = inputs['SENDER']
+        RECEIVER = inputs['RECEIVER']
+        set_name()
 
-  if event == 'update':
-    print("\n\nUPDATE\n\n")
-    crypt_method = inputs['crypt']
-    crypt_key = inputs['key']
-    if crypt_method == 'DiffieHelman':
-      color_boxes = 'green'
-    else:
-      color_boxes = 'red'
-    window['pubkey'].update(background_color=color_boxes)
-    window['privkey'].update(background_color=color_boxes)
+    if event == 'update':
+        print("\n\nUPDATE\n\n")
+        crypt_method = inputs['crypt']
+        crypt_key = inputs['key']
+        if crypt_method == 'DiffieHelman':
+            COLOR_BOXES = 'green'
+        else:
+            COLOR_BOXES = 'red'
+        window['pubkey'].update(background_color=COLOR_BOXES)
+        window['privkey'].update(background_color=COLOR_BOXES)
 
-  if event == 'publish':
-    print("\n\nUPDATE\n\n")
-    print(inputs['crypt'])
-    if inputs['crypt'] == 'DiffieHelman':
-      private_key = int(inputs['privkey'])
-      print('passou')
-      print(inputs['receiver'])
-      print(chaves_publicas[inputs['receiver']])
-      public_key = DiffieHelman.get_public(private_key)
-      key = DiffieHelman.get_key(private_key, chaves_publicas[inputs['receiver']])
-      window['pubkey'].update(public_key)
-      window['key'].update(key)
-      client_socket.send(bytes(f"#pubkey#{receiver}#{public_key}", 'utf8'))
-      chaves_publicas[inputs['sender']] = public_key
+    if event == 'publish':
+        print(inputs['crypt'])
+        if inputs['crypt'] == 'DiffieHelman':
+            MY_PRIVATE_KEY = int(inputs['privkey'])
+            print('passou')
+            print(inputs['RECEIVER'])
+            print(PUBLIC_KEYS_HASH[inputs['RECEIVER']])
+            MY_PUBLIC_KEY = DiffieHelman.get_public(MY_PRIVATE_KEY)
+            key = DiffieHelman.get_key(MY_PRIVATE_KEY, PUBLIC_KEYS_HASH[inputs['RECEIVER']])
+            window['pubkey'].update(MY_PUBLIC_KEY)
+            window['key'].update(key)
+            client_socket.send(bytes(f"#pubkey#{RECEIVER}#{MY_PUBLIC_KEY}", 'utf8'))
+            PUBLIC_KEYS_HASH[inputs['SENDER']] = MY_PUBLIC_KEY
 
-  if event == 'send':
-    send_message()
+    if event == 'send':
+        send_message()
