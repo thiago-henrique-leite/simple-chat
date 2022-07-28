@@ -31,3 +31,7 @@ cd tests && python3 -m unittest test_sdes.py
 ```bash
 cd tests && python3 -m unittest test_cbc.py
 ```
+
+```bash
+cd tests && python3 -m unittest test_diffie_helman.py
+```

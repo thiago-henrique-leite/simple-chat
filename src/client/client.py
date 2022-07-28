@@ -59,7 +59,6 @@ def encrypt(message):
     if inputs['crypt'] == 'CBC':
         return CBC.encrypt(message, inputs['key'])
     if inputs['crypt'] == 'DiffieHelman':
-        print(inputs['key'])
         return RC4.encrypt(message, inputs['key'])
 
 def decrypt(message):
